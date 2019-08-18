@@ -23,7 +23,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 150  # Number of waypoints we will publish. You can change this number
 REFRESH_RATE = 10  # in Hz, set to 50 for carla
 MAX_DECEL = .6
 DISTANCE_TO_LANE = 5
@@ -71,6 +71,9 @@ class WaypointUpdater(object):
         x = self.pose.pose.position.x
         y = self.pose.pose.position.y
         closest_idx = self.waypoint_tree.query([x, y], 1)[1]
+
+        # debug
+        # rospy.logwarn("Speedlimit: {0}".format(self.base_lane.waypoints[closest_idx].twist.twist.linear.x))
 
         # Check if closest is ahead or behind vehicle
         closest_coord = self.waypoints_2d[closest_idx]
@@ -158,7 +161,7 @@ class WaypointUpdater(object):
                 vel = 0.
 
             # get the min. of calculated velocity and the speed limit
-            p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
+            p.twist.twist.linear.x = min(vel, self.get_waypoint_velocity(wp))
             temp.append(p)
 
         return temp
