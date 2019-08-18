@@ -23,7 +23,8 @@ STATE_COUNT_THRESHOLD = 3
 
 
 def distance(position1, position2):
-    return math.sqrt((position1.x-position2.x)**2 + (position1.y-position2.y)**2 + (position1.z-position2.z)**2)
+    return math.sqrt(
+        (position1.x - position2.x) ** 2 + (position1.y - position2.y) ** 2 + (position1.z - position2.z) ** 2)
 
 
 class TLDetector(object):
@@ -43,6 +44,11 @@ class TLDetector(object):
         sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
         sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
 
+        # YOLO for ROS message
+        sub5 = rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
+        self.BoundingBox_List = None
+
+        self.simulator_mode = rospy.get_param("/simulator_mode")
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
@@ -138,17 +144,17 @@ class TLDetector(object):
 
         """
 
-        # TODO delete - debug: return light state from simulator to test without image recognition
+        # Tdebug: return light state from simulator to test without image recognition
         # return light.state
 
-        if(not self.has_image):
+        if not self.has_image:
             self.prev_light_loc = None
             return False
 
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
-        #Get classification
-        return self.light_classifier.get_classification(cv_image, None, 1)
+        # Get classification
+        return self.light_classifier.get_classification(cv_image, self.BoundingBox_List, 1)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -185,6 +191,34 @@ class TLDetector(object):
             return line_wp_id, state
 
         return -1, TrafficLight.UNKNOWN
+
+    def bounding_boxes_cb(self, msg):
+        # create new list of bounding boxes
+        self.BoundingBox_List = []
+
+        if int(self.simulator_mode) == 1:
+            expected_probability = 0.85
+            diagonal_size = 85
+        else:
+            expected_probability = 0.25
+            diagonal_size = 40
+
+        for boundingBox in msg.bounding_boxes:
+
+            if str(boundingBox.Class) == 'traffic light' and boundingBox.probability >= expected_probability:
+
+                # if image_size aka boundingBox size is big enough
+                if math.sqrt((boundingBox.xmin - boundingBox.xmax) ** 2 + (
+                        boundingBox.ymin - boundingBox.ymax) ** 2) >= diagonal_size:
+                    self.BoundingBox_List.append(boundingBox)
+
+                    # park site mode
+                    if int(self.simulator_mode) == 0:
+                        # get camera image
+                        cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
+                        # store bounding box as image
+                        bounding_box_image = cv_image[boundingBox.ymin:boundingBox.ymax, boundingBox.xmin:boundingBox.xmax]
+                        self.light_classifier.detect_light_state(bounding_box_image)
 
 
 if __name__ == '__main__':
