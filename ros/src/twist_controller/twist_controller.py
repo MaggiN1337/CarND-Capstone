@@ -54,12 +54,12 @@ class Controller(object):
         brake = 0
 
         if linear_vel == 0. and current_vel < 0.1:
-            rospy.logwarn("Hold vehicle in place")
+            # rospy.logwarn("Hold vehicle in place")
             throttle = 0
             brake = 400  # N*m - to hold the car in place
 
         elif throttle < .1 and vel_error < 0:
-            rospy.logwarn("Throttle < 0.1 and vel_error < 0")
+            # rospy.logwarn("Throttle < 0.1 and vel_error < 0")
             throttle = 0
             decel = max(vel_error, self.decel_limit)
             # Torque N*m
