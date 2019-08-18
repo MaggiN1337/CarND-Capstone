@@ -30,6 +30,7 @@ Once you have the proposed throttle, brake, and steer values, publish it on the 
 that we have created in the `__init__` function.
 
 '''
+REFRESH_RATE = 10
 
 
 class DBWNode(object):
@@ -70,7 +71,7 @@ class DBWNode(object):
         self.loop()
 
     def loop(self):
-        rate = rospy.Rate(10)  # 50Hz
+        rate = rospy.Rate(REFRESH_RATE)  # 50Hz
         while not rospy.is_shutdown():
             # Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled

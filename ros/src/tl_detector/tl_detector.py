@@ -27,11 +27,6 @@ class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
 
-        self.pose = None
-        self.waypoints = None
-        self.camera_image = None
-        self.lights = []
-
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
@@ -59,6 +54,10 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
+        self.lights = []
+        self.pose = None
+        self.waypoints = None
+        self.camera_image = None
         self.waypoints_2d = None
         self.waypoint_tree = None
 

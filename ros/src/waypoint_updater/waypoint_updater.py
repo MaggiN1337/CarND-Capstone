@@ -23,10 +23,10 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200  # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number
 REFRESH_RATE = 10   # in Hz, set to 50 for carla
 MAX_DECEL = .6
-DISTANCE_TO_LIGHT = 4
+DISTANCE_TO_LANE = 5
 
 
 class WaypointUpdater(object):
@@ -45,7 +45,7 @@ class WaypointUpdater(object):
         self.base_waypoints = None
         self.waypoints_2d = None
         self.waypoint_tree = None
-        self.stopline_wp_id = 0
+        self.stopline_wp_id = -1
 
         self.loop()
 
@@ -121,35 +121,42 @@ class WaypointUpdater(object):
 
         closest_idx = self.get_closest_waypoint_id()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
-        # select waypoints from closest waypoint up to LOOKAHEAD_WPS
-        base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
 
+        # debug to verify variables
+        rospy.logwarn("stopline_id: {0} - closest_id: {1} - farthest_id: {2}"
+                      .format(self.stopline_wp_id, closest_idx, farthest_idx))
+
+        # if no stopline found or in range of LOOKAHEAD_WPS
         if self.stopline_wp_id == -1 or (self.stopline_wp_id >= farthest_idx):
-            lane.waypoints = base_waypoints
+            # select waypoints from closest waypoint up to LOOKAHEAD_WPS
+            lane.waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
         else:
-            lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
+            # select waypoints from closest waypoint up to stopline
+            lane.waypoints = self.decelerate_waypoints(self.base_lane.waypoints[closest_idx:self.stopline_wp_id],
+                                                       closest_idx)
 
         return lane
 
     def decelerate_waypoints(self, waypoints, closest_idx):
         temp = []
         for i, wp in enumerate(waypoints):
-
+            #rospy.logwarn("i: {0}".format(i))
             p = Waypoint()
             p.pose = wp.pose
 
             # Two waypoints back from line so front of car stops at line
-            stop_id = max(self.stopline_wp_id - closest_idx - DISTANCE_TO_LIGHT, 0)
+            stop_id = max(self.stopline_wp_id - closest_idx - DISTANCE_TO_LANE, 0)
 
             # calc distance to stop point
             dist = self.distance(waypoints, i, stop_id)
 
             # reduce velocity if distance gets smaller
             vel = math.sqrt(2 * MAX_DECEL * dist)
+            # at the end, come to stop smoothly
             if vel < 1.:
                 vel = 0.
 
-            # do not drive faster than the speed limit
+            # get the min. of calculated velocity and the speed limit
             p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
 
