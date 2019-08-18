@@ -24,7 +24,7 @@ TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
 LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number
-REFRESH_RATE = 10   # in Hz, set to 50 for carla
+REFRESH_RATE = 10  # in Hz, set to 50 for carla
 MAX_DECEL = .6
 DISTANCE_TO_LANE = 5
 
@@ -106,7 +106,6 @@ class WaypointUpdater(object):
         dist = 0
         dl = lambda a, b: math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2 + (a.z - b.z) ** 2)
         for i in range(wp1, wp2 + 1):
-            #rospy.logwarn("Index wp1: {0}, Index wp2+1: {1}".format(wp1,wp2+1))
             dist += dl(waypoints[wp1].pose.pose.position, waypoints[i].pose.pose.position)
             wp1 = i
         return dist
@@ -123,8 +122,8 @@ class WaypointUpdater(object):
         farthest_idx = closest_idx + LOOKAHEAD_WPS
 
         # debug to verify variables
-        rospy.logwarn("stopline_id: {0} - closest_id: {1} - farthest_id: {2}"
-                      .format(self.stopline_wp_id, closest_idx, farthest_idx))
+        # rospy.logwarn("stopline_id: {0} - closest_id: {1} - farthest_id: {2}"
+        #               .format(self.stopline_wp_id, closest_idx, farthest_idx))
 
         # if no stopline found or in range of LOOKAHEAD_WPS
         if self.stopline_wp_id == -1 or (self.stopline_wp_id >= farthest_idx):
@@ -140,7 +139,9 @@ class WaypointUpdater(object):
     def decelerate_waypoints(self, waypoints, closest_idx):
         temp = []
         for i, wp in enumerate(waypoints):
-            #rospy.logwarn("i: {0}".format(i))
+            # debug to how much this loop is running
+            # rospy.logwarn("i: {0}".format(i))
+
             p = Waypoint()
             p.pose = wp.pose
 

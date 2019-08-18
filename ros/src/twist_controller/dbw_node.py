@@ -30,7 +30,7 @@ Once you have the proposed throttle, brake, and steer values, publish it on the 
 that we have created in the `__init__` function.
 
 '''
-REFRESH_RATE = 10
+REFRESH_RATE = 50
 
 
 class DBWNode(object):
