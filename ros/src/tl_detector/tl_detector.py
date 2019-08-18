@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import timeit
+
 import rospy
 import math
 from std_msgs.msg import Int32
@@ -74,9 +76,14 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
+
         self.has_image = True
         self.camera_image = msg
+        # debug
+        start_processing = timeit.default_timer()
         light_wp, state = self.process_traffic_lights()
+        # debug
+        rospy.logwarn("Image processing took {0} seconds".format(timeit.default_timer()-start_processing))
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -96,23 +103,22 @@ class TLDetector(object):
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
 
-    def get_closest_waypoint(self, pose, coords):
+    def get_closest_waypoint(self, pose, waypoint):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
         Args:
-            pose (Pose): position to match a waypoint to
-            coords (Array): position of the waypoint
+            pose (position): position to match a waypoint to
+            waypoint (waypoint): position of the waypoint
 
         Returns:
             int: index of the closest waypoint
 
         """
-        #TODO implement
         min_dist = 9999
         index = -1
 
-        for i in range(len(coords)):
-            dist = distance(pose.position, coords.position)
+        for i in range(len(waypoint)):
+            dist = distance(pose, waypoint[i].pose.pose.position)
             if dist < min_dist:
                 min_dist = dist
                 index = i
@@ -149,17 +155,23 @@ class TLDetector(object):
         """
         light = None
         stop_line_pose = None
+        stop_line_wp = None
 
-        if(self.pose):
+        if not self.waypoints:
+            rospy.logwarn("Waypoint is None")
+
+        if self.pose and self.waypoints:
             # find the closest visible traffic light (if one exists)
             car_id = self.get_closest_waypoint(self.pose.pose.position, self.waypoints.waypoints)
             car_position = self.waypoints.waypoints[car_id].pose.pose.position
+            rospy.logwarn("Car Position: {0}".format(car_position))
 
             light_id = self.get_closest_waypoint(car_position, self.lights)
             if light_id != -1:
                 light_waypoint_id = self.get_closest_waypoint(self.lights[light_id].pose.pose.position,
                                                               self.waypoints.waypoints)
                 light_position = self.waypoints.waypoints[light_waypoint_id].pose.pose.position
+                rospy.logwarn("Next light: {0}".format(light_position))
 
                 # if nearest waypoint in front of vehicle
                 if light_waypoint_id > car_id:
@@ -171,10 +183,10 @@ class TLDetector(object):
                         # List of positions that correspond to the line to stop in front of for a given intersection
                         stop_line_positions = self.config['stop_line_positions']
                         stop_lines = []
-                        for light_position in stop_line_positions:
+                        for line_position in stop_line_positions:
                             wp = Waypoint()
-                            wp.pose.pose.position.x = light_position[0]
-                            wp.pose.pose.position.y = light_position[1]
+                            wp.pose.pose.position.x = line_position[0]
+                            wp.pose.pose.position.y = line_position[1]
                             wp.pose.pose.position.z = 0.0
                             stop_lines.append(wp)
 
@@ -183,9 +195,9 @@ class TLDetector(object):
                         stop_line_id = self.get_closest_waypoint(light_position, stop_lines)
                         stop_line_pose = stop_lines[stop_line_id].pose.pose
                         stop_line_wp = self.get_closest_waypoint(stop_line_pose.position, self.waypoints.waypoints)
-                        rospy.logwarn("Next traffic light stop line ahead: " + stop_line_wp)
 
         if light and stop_line_pose:
+            rospy.logwarn("Next traffic light stop line ahead: {0}".format(stop_line_wp))
             state = self.get_light_state(light)
             return stop_line_wp, state
 
