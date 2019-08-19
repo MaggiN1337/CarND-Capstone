@@ -52,7 +52,7 @@ class TLClassifier(object):
         # Apply mask
         bb_image = np.multiply(bb_image, mask)
 
-        # Threhold the grayscale image
+        # Threshold the grayscale image
         bb_image = cv2.inRange(bb_image, 210, 255)
 
         # Partition into Red, Yellow and Green Areas
@@ -64,24 +64,22 @@ class TLClassifier(object):
         yellow_count = cv2.countNonZero(yellow_area)
         green_count = cv2.countNonZero(green_area)
 
-        # Publish the image for diagnostics
-        self.cropped_tl_bb_pub.publish(self.bridge.cv2_to_imgmsg(bb_image, "mono8"))
-
         # Default state is unknown
         state = TrafficLight.UNKNOWN
         # Determine which color had max non-zero pixels
         if red_count > yellow_count and red_count > green_count:
-            rospy.logwarn('Red Light Detected!')
+            #rospy.logwarn('Red Light Detected!')
             state = TrafficLight.RED
         elif yellow_count > red_count and yellow_count > green_count:
-            rospy.logwarn('Yellow Light Detected!')
+            #rospy.logwarn('Yellow Light Detected!')
             state = TrafficLight.YELLOW
         elif green_count > red_count and green_count > yellow_count:
-            rospy.logwarn('Green Light Detected!')
+            #rospy.logwarn('Green Light Detected!')
             state = TrafficLight.GREEN
         else:
             rospy.logwarn("No traffic light color recognized")
 
+        rospy.logwarn("Red: {0} - Yellow: {1} - Red: {2}".format(red_count, yellow_count, green_count))
         return state
 
     def get_classification(self, image, bounding_box_list, simulator_mode):
@@ -95,7 +93,6 @@ class TLClassifier(object):
             :param bounding_box_list:
             :param simulator_mode:
         """
-
         # if list is empty, return UNKNOWN
         if not bounding_box_list:
             return TrafficLight.UNKNOWN
@@ -127,14 +124,10 @@ class TLClassifier(object):
                 frame_threshed_green = cv2.inRange(hsv_bb_img, (90.0 / 360 * 255, 100, 100),
                                                    (140.0 / 360 * 255, 255, 255))
 
-                # Publish the HSV image (for diagnostics)
-                self.cropped_tl_bb_pub.publish(self.bridge.cv2_to_imgmsg(hsv_bb_img, "bgr8"))
-
                 # If more than a certain number of pixels are red
                 if cv2.countNonZero(frame_threshed_red1) + cv2.countNonZero(frame_threshed_red2) > 40:
                     print('Red Light Detected!')
                     return TrafficLight.RED
-
                 elif cv2.countNonZero(frame_threshed_yellow) > 20:
                     print('Yellow Light Detected!')
                     return TrafficLight.YELLOW

@@ -48,7 +48,7 @@ class TLDetector(object):
         sub5 = rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
         self.BoundingBox_List = None
 
-        self.simulator_mode = rospy.get_param("/simulator_mode")
+        self.simulator_mode = 1 # rospy.get_param("/simulator_mode")
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
@@ -56,7 +56,7 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
-        self.listener = tf.TransformListener()
+        # self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
         self.last_state = TrafficLight.UNKNOWN
