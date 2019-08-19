@@ -1,3 +1,0 @@
-[submodule "ros/src/darknet_ros"]
-	path = ros/src/darknet_ros
-	url = https://github.com/leggedrobotics/darknet_ros.git
