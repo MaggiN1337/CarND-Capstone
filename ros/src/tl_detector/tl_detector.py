@@ -144,7 +144,7 @@ class TLDetector(object):
 
         """
 
-        # Tdebug: return light state from simulator to test without image recognition
+        # debug: return light state from simulator to test without image recognition
         # return light.state
 
         if not self.has_image:
