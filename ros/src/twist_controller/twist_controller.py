@@ -12,9 +12,9 @@ class Controller(object):
                  wheel_radius, wheel_base, steer_ratio, max_lat_accel, max_steer_angle):
 
         self.yaw_controller = YawController(wheel_base, steer_ratio, 0.1, max_lat_accel, max_steer_angle)
-
-        kp = 0.3
-        ki = 0.1
+        # TODO: watch integral error over time, maybe reset it every 100 frames
+        kp = 1.0
+        ki = 0.01
         kd = 0.
         mn = 0.
         mx = 0.2

@@ -23,8 +23,8 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 150  # Number of waypoints we will publish. You can change this number
-REFRESH_RATE = 20  # in Hz, set to 50 for carla
+LOOKAHEAD_WPS = 100  # Number of waypoints we will publish. You can change this number
+REFRESH_RATE = 30  # in Hz, set to 50 for carla
 MAX_DECEL = .6
 DISTANCE_TO_LANE = 5
 
