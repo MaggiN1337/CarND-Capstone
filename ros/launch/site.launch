@@ -23,4 +23,11 @@
 
     <!--Camera Info Publisher -->
     <include file="$(find camera_info_publisher)/launch/camera_info_publisher.launch"/>
+
+    <!--DarkNet YOLO ROS Node -->
+    <include file="$(find darknet_ros)/launch/yolo_v3.launch"/>
+
+    <!-- Simulator parameter-->
+    <param name="simulator_mode" value="0" type="int"/>
+
 </launch>

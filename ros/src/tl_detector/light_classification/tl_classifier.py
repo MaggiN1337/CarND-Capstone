@@ -9,6 +9,7 @@ from cv_bridge import CvBridge
 class TLClassifier(object):
     def __init__(self):
         # load classifier
+        self.cropped_tl_bb_pub = rospy.Publisher("/cropped_bb", Image, queue_size=1)
         self.bridge = CvBridge()
 
     # Return state of light in BB image
@@ -124,6 +125,12 @@ class TLClassifier(object):
                 frame_threshed_green = cv2.inRange(hsv_bb_img, (90.0 / 360 * 255, 100, 100),
                                                    (140.0 / 360 * 255, 255, 255))
 
+                rospy.logwarn("Red: {0} - Yellow: {1} - Red: {2}".format(frame_threshed_red1+frame_threshed_red2,
+                                                                         frame_threshed_yellow, frame_threshed_green))
+                # Publish the HSV image (for diagnostics)
+                self.cropped_tl_bb_pub.publish(self.bridge.cv2_to_imgmsg(hsv_bb_img, "bgr8"))
+
+
                 # If more than a certain number of pixels are red
                 if cv2.countNonZero(frame_threshed_red1) + cv2.countNonZero(frame_threshed_red2) > 40:
                     print('Red Light Detected!')
@@ -135,7 +142,7 @@ class TLClassifier(object):
                     print('Green Light Detected!')
                     return TrafficLight.GREEN
                 else:
-                    print ('Warning! Could not determine color of light!')
+                    print('Warning! Could not determine color of light!')
                     return TrafficLight.UNKNOWN
 
             # Running in site mode

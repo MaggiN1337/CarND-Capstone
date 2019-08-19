@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import timeit
-
 import rospy
 import math
 
@@ -31,6 +29,13 @@ class TLDetector(object):
     def __init__(self):
         rospy.init_node('tl_detector')
 
+        self.lights = []
+        self.pose = None
+        self.waypoints = None
+        self.camera_image = None
+        self.waypoints_2d = None
+        self.waypoint_tree = None
+
         sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
         sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
 
@@ -48,7 +53,7 @@ class TLDetector(object):
         sub5 = rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
         self.BoundingBox_List = None
 
-        self.simulator_mode = 1 # rospy.get_param("/simulator_mode")
+        self.simulator_mode = 1  # rospy.get_param("/simulator_mode")
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
@@ -63,12 +68,7 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
-        self.lights = []
-        self.pose = None
-        self.waypoints = None
-        self.camera_image = None
-        self.waypoints_2d = None
-        self.waypoint_tree = None
+
 
         rospy.spin()
 
@@ -154,7 +154,7 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         # Get classification
-        return self.light_classifier.get_classification(cv_image, self.BoundingBox_List, 1)
+        return self.light_classifier.get_classification(cv_image, self.BoundingBox_List, self.simulator_mode)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
