@@ -16,27 +16,27 @@ No. | Criteria | How I solved it
 ### Testresults from track
 
 ##### Simulator on track right after start. [Manual mode, no Camera] 
-![track_start_default](imgs/track_start_default.png)
+![track_start_default]:(./imgs/track_start_default.png)
 
 ##### ... turned camera on, green light, long waypoints. [Manual mode, Camera on] 
-![track_start_camera](imgs/track_start_camera.png)
+![track_start_camera]:(./imgs/track_start_camera.png)
 
 ##### ... turned camera on, yellow light, long waypoints. [Manual mode, Camera on] 
-![track_start_camera_yellow](imgs/track_start_camera_yellow.png)
+![track_start_camera_yellow]:(./imgs/track_start_camera_yellow.png)
 
 ##### ... turned camera on, red light, only few waypoints until stopline. [Manual mode, Camera on] 
-![track_start_camera_red](imgs/track_start_camera_red.png)
+![track_start_camera_red]:(./imgs/track_start_camera_red.png)
 
 ##### vehicle started with green light in autonomous mode. [Autonomous mode, Camera on] 
-![track_run_green](imgs/track_run_green.png)
+![track_run_green]:(./imgs/track_run_green.png)
 
 ### Testresults from parking site
 
-![Traffic Light 1](imgs/YOLO V3_screenshot_20.08.2019.png)
+![Traffic Light 1]:(./imgs/YOLO V3_screenshot_20.08.2019.png)
 
-![Traffic Light 2](imgs/YOLO V3_screenshot_20.08.2019_2.png)
+![Traffic Light 2]:(./imgs/YOLO V3_screenshot_20.08.2019_2.png)
 
-![Traffic Light 3 as Stop Sign](imgs/YOLO v3_screenshot_stopsign.PNG)
+![Traffic Light 3 as Stop Sign]:(./imgs/YOLO v3_screenshot_stopsign.PNG)
 
 ### Settings for YOLO for ROS 
 CarND-Capstone\ros\src\darknet_ros\darknet_ros\config\yolov3.yaml:
