@@ -16,9 +16,15 @@ No. | Criteria | How I solved it
 ### Testresults from track
 
 ##### Simulator on track right after start. [Manual mode, no Camera] 
+
+[image1]: ./imgs/track_start_default.png "track_start_default"
+
 [track_start_default]: ./imgs/track_start_default.png
 
 ##### ... turned camera on, green light, long waypoints. [Manual mode, Camera on] 
+
+[image2]: imgs/track_start_camera.png "track_start_camera"
+
 [track_start_camera]: ./imgs/track_start_camera.png
 
 ##### ... turned camera on, yellow light, long waypoints. [Manual mode, Camera on] 
