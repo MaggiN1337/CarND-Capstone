@@ -175,6 +175,7 @@ class TLDetector(object):
                     line_wp_id = temp_wp_id
 
         if closest_light:
+            # rospy.logwarn("Found stop line: {0}".format(line_wp_id))
             state = self.get_light_state(closest_light)
             return line_wp_id, state
 
@@ -182,6 +183,7 @@ class TLDetector(object):
 
     def bounding_boxes_cb(self, msg):
         # create new list of bounding boxes
+
         self.BoundingBox_List = []
 
         if int(self.simulator_mode) == 1:
@@ -209,6 +211,7 @@ class TLDetector(object):
                         # store bounding box as image
                         bounding_box_image = cv_image[boundingBox.ymin:boundingBox.ymax,
                                              boundingBox.xmin:boundingBox.xmax]
+                        # detect light state on each image immediately
                         self.light_classifier.detect_light_state(bounding_box_image)
 
 
