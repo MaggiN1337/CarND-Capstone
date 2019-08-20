@@ -2,6 +2,7 @@
 Self-Driving Car Engineer Nanodegree Program
 
 The final project by Marcus Neuert, 21.08.2019
+Udacity account: marcus.neuert@nttdata.com
 
 ### Project Goals and how I managed them
 
@@ -37,9 +38,9 @@ No. | Criteria | How I solved it
 
 ### Testresults from parking site
 
-![Traffic_Light_1] "imgs/YOLO V3_screenshot_20.08.2019.png"
+![Traffic_Light_1]("imgs/YOLO V3_screenshot_20.08.2019.png")
 
-![Traffic_Light_2](imgs/"YOLO V3_screenshot_20.08.2019_2.png")
+![Traffic_Light_2]("imgs/YOLO V3_screenshot_20.08.2019_2.png")
 
 ![Traffic_Light_3_as_Stop_Sign]("imgs/YOLO v3_screenshot_stopsign.PNG")
 
