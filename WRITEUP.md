@@ -17,24 +17,24 @@ No. | Criteria | How I solved it
 
 ##### Simulator on track right after start. [Manual mode, no Camera] 
 
-[image1]: ./imgs/track_start_default.png "track_start_default"
+[image1]: ./imgs/track_start_default.PNG "track_start_default"
 
-[track_start_default]: ./imgs/track_start_default.png
+[track_start_default]: ./imgs/track_start_default.PNG
 
 ##### ... turned camera on, green light, long waypoints. [Manual mode, Camera on] 
 
-[image2]: imgs/track_start_camera.png "track_start_camera"
+[image2]: imgs/track_start_camera.PNG "track_start_camera"
 
-[track_start_camera]: ./imgs/track_start_camera.png
+![track_start_camera](imgs/track_start_camera.PNG)
 
 ##### ... turned camera on, yellow light, long waypoints. [Manual mode, Camera on] 
-[track_start_camera_yellow]: ./imgs/track_start_camera_yellow.png
+[track_start_camera_yellow]: ./imgs/track_start_camera_yellow.PNG
 
 ##### ... turned camera on, red light, only few waypoints until stopline. [Manual mode, Camera on] 
-[track_start_camera_red]: ./imgs/track_start_camera_red.png
+[track_start_camera_red]: ./imgs/track_start_camera_red.PNG
 
 ##### vehicle started with green light in autonomous mode. [Autonomous mode, Camera on] 
-[track_run_green]: ./imgs/track_run_green.png
+[track_run_green]: ./imgs/track_run_green.PNG
 
 ### Testresults from parking site
 
