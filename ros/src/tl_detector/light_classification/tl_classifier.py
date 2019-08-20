@@ -9,33 +9,32 @@ from cv_bridge import CvBridge
 class TLClassifier(object):
     def __init__(self):
         # load classifier
-        #self.cropped_tl_bb_pub = rospy.Publisher("/cropped_bb", Image, queue_size=1)
         self.bridge = CvBridge()
 
-    # Return state of light in BB image
+    # Return state of light
     def detect_light_state(self, bb_image):
         # Get height and width
         height, width, channels = bb_image.shape
-        # Partition into Red, Yellow and Green Areas
+        # split into Red, Yellow and Green Areas
         red_area = bb_image[0:height // 3, 0:width]
         yellow_area = bb_image[height // 3: 2 * height // 3, 0:width]
         green_area = bb_image[2 * height // 3: height, 0:width]
 
-        # We boost individual channel values, i.e., Red is boosted in Red Area, Green is boosted in Green Area
+        # coefficients for BGR range
         # Standard Gray conversion, coefficients = [0.114, 0.587, 0.299] (bgr)
         coefficients_red = [0.1, 0.1, 0.8]
         coefficients_yellow = [0.114, 0.587, 0.299]
         coefficients_green = [0.1, 0.8, 0.1]
 
-        # Apply co-efficients to get grayscale image
+        # Apply coefficients to get grayscale image
         red_area = cv2.transform(red_area, np.array(coefficients_red).reshape((1, 3)))
         yellow_area = cv2.transform(yellow_area, np.array(coefficients_yellow).reshape((1, 3)))
         green_area = cv2.transform(green_area, np.array(coefficients_green).reshape((1, 3)))
 
-        # Patch the image back (Note image is now in grayscale)
+        # merge the greyscale image back
         bb_image = np.concatenate((red_area, yellow_area, green_area), axis=0)
 
-        # Get height and width values again (just to be sure interger division didn't eat up some values)
+        # Get height and width values again
         height, width = bb_image.shape
 
         # Create mask
@@ -69,18 +68,14 @@ class TLClassifier(object):
         state = TrafficLight.UNKNOWN
         # Determine which color had max non-zero pixels
         if red_count > yellow_count and red_count > green_count:
-            # rospy.logwarn('Red Light Detected!')
             state = TrafficLight.RED
         elif yellow_count > red_count and yellow_count > green_count:
-            # rospy.logwarn('Yellow Light Detected!')
             state = TrafficLight.YELLOW
         elif green_count > red_count and green_count > yellow_count:
-            # rospy.logwarn('Green Light Detected!')
             state = TrafficLight.GREEN
         else:
             rospy.logwarn("No traffic light color recognized")
 
-        # rospy.logwarn("Red: {0} - Yellow: {1} - Red: {2}".format(red_count, yellow_count, green_count))
         return state
 
     def get_classification(self, image, bounding_box_list, simulator_mode):
@@ -99,13 +94,13 @@ class TLClassifier(object):
             return TrafficLight.UNKNOWN
 
         else:
-            # We consider the BB with highest probability (at index 0)
+            # take the boundingBox with highest probability (at index 0)
             xmin = bounding_box_list[0].xmin
             xmax = bounding_box_list[0].xmax
             ymin = bounding_box_list[0].ymin
             ymax = bounding_box_list[0].ymax
 
-            # cropped image
+            # cutout bounding box from image
             bb_image = image[ymin:ymax, xmin:xmax]
 
             # Check if running in simulator mode
@@ -125,23 +120,15 @@ class TLClassifier(object):
                 frame_threshed_green = cv2.inRange(hsv_bb_img, (90.0 / 360 * 255, 100, 100),
                                                    (140.0 / 360 * 255, 255, 255))
 
-                # rospy.logwarn("Red: {0} - Yellow: {1} - Red: {2}".format(frame_threshed_red1+frame_threshed_red2,
-                #                                                          frame_threshed_yellow, frame_threshed_green))
-
-
-
                 # If more than a certain number of pixels are red
                 if cv2.countNonZero(frame_threshed_red1) + cv2.countNonZero(frame_threshed_red2) > 40:
-                    #print('Red Light Detected!')
                     return TrafficLight.RED
                 elif cv2.countNonZero(frame_threshed_yellow) > 20:
-                    #print('Yellow Light Detected!')
                     return TrafficLight.YELLOW
                 elif cv2.countNonZero(frame_threshed_green) > 20:
-                    #print('Green Light Detected!')
                     return TrafficLight.GREEN
                 else:
-                    #print('Warning! Could not determine color of light!')
+                    rospy.logwarn("No traffic light color recognized")
                     return TrafficLight.UNKNOWN
 
             # Running in site mode

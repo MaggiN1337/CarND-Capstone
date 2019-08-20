@@ -36,24 +36,16 @@ class TLDetector(object):
         self.waypoints_2d = None
         self.waypoint_tree = None
 
-        sub1 = rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        sub2 = rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-
-        '''
-        /vehicle/traffic_lights provides you with the location of the traffic light in 3D map space and
-        helps you acquire an accurate ground truth data source for the traffic light
-        classifier by sending the current color state of all traffic lights in the
-        simulator. When testing on the vehicle, the color state will not be available. You'll need to
-        rely on the position of the light and the camera image to predict it.
-        '''
-        sub3 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        sub6 = rospy.Subscriber('/image_color', Image, self.image_cb)
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
+        rospy.Subscriber('/image_color', Image, self.image_cb)
 
         # YOLO for ROS message
-        sub5 = rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
+        rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
         self.BoundingBox_List = None
 
-        self.simulator_mode = 1  # rospy.get_param("/simulator_mode")
+        self.simulator_mode = rospy.get_param("/simulator_mode")
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
 
@@ -61,7 +53,7 @@ class TLDetector(object):
 
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
-        # self.listener = tf.TransformListener()
+        self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
         self.last_state = TrafficLight.UNKNOWN
@@ -91,12 +83,10 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
-
         self.has_image = True
         self.camera_image = msg
         light_wp, state = self.process_traffic_lights()
-        # debug
-        # rospy.logwarn("Next traffic light stop line ahead: {0} - State: ".format(light_wp, state))
+
         '''
         Publish upcoming red lights at camera frequency.
         Each predicted state has to occur `STATE_COUNT_THRESHOLD` number
@@ -120,8 +110,8 @@ class TLDetector(object):
         """Identifies the closest path waypoint to the given position
             https://en.wikipedia.org/wiki/Closest_pair_of_points_problem
         Args:
-            pose (position): position to match a waypoint to
-
+            x
+            y
         Returns:
             int: index of the closest waypoint
 
@@ -203,7 +193,9 @@ class TLDetector(object):
 
         for boundingBox in msg.bounding_boxes:
 
-            if str(boundingBox.Class) == 'traffic light' and boundingBox.probability >= expected_probability:
+            # check for YOLO traffic lights or stop sign, as it sometimes declares a red traffic light as stop sign
+            if (str(boundingBox.Class) == 'traffic light' or
+                    str(boundingBox.Class) == 'stop sign') and boundingBox.probability >= expected_probability:
 
                 # if image_size aka boundingBox size is big enough
                 if math.sqrt((boundingBox.xmin - boundingBox.xmax) ** 2 + (
@@ -215,7 +207,8 @@ class TLDetector(object):
                         # get camera image
                         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
                         # store bounding box as image
-                        bounding_box_image = cv_image[boundingBox.ymin:boundingBox.ymax, boundingBox.xmin:boundingBox.xmax]
+                        bounding_box_image = cv_image[boundingBox.ymin:boundingBox.ymax,
+                                             boundingBox.xmin:boundingBox.xmax]
                         self.light_classifier.detect_light_state(bounding_box_image)
 
 
