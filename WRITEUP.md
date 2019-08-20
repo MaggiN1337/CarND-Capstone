@@ -37,11 +37,11 @@ No. | Criteria | How I solved it
 
 ### Testresults from parking site
 
-![Traffic Light 1](imgs/YOLO V3_screenshot_20.08.2019.png)
+![Traffic_Light_1]("imgs/YOLO V3_screenshot_20.08.2019.png")
 
-![Traffic Light 2](imgs/YOLO V3_screenshot_20.08.2019_2.png)
+![Traffic_Light_2]("imgs/YOLO V3_screenshot_20.08.2019_2.png")
 
-![Traffic Light 3 as Stop Sign](imgs/YOLO v3_screenshot_stopsign.PNG)
+![Traffic_Light_3_as_Stop_Sign]("imgs/YOLO v3_screenshot_stopsign.PNG")
 
 ### Settings for YOLO for ROS 
 CarND-Capstone\ros\src\darknet_ros\darknet_ros\config\yolov3.yaml:
