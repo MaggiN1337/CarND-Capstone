@@ -13,11 +13,13 @@ from light_classification.tl_classifier import TLClassifier
 import tf
 import cv2
 import yaml
+from timeit import default_timer as timer
 
 from darknet_ros_msgs.msg import BoundingBox
 from darknet_ros_msgs.msg import BoundingBoxes
 
 STATE_COUNT_THRESHOLD = 3
+LOOKAHEAD_WPS = 150
 
 
 def distance(position1, position2):
@@ -36,13 +38,15 @@ class TLDetector(object):
         self.waypoints_2d = None
         self.waypoint_tree = None
 
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
-        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
-        rospy.Subscriber('/image_color', Image, self.image_cb)
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb, queue_size=1)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb, queue_size=1)
+        rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb, queue_size=1)
+        # use image from YOLO, so that bounding box matches the image
+        rospy.Subscriber('/darknet_ros/detection_image', Image, self.image_cb, queue_size=1)
+        #rospy.Subscriber('/image_color', Image, self.image_cb, queue_size=1)
 
         # YOLO for ROS message
-        rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb)
+        rospy.Subscriber('/darknet_ros/bounding_boxes', BoundingBoxes, self.bounding_boxes_cb, queue_size=1)
         self.BoundingBox_List = None
 
         self.simulator_mode = rospy.get_param("/simulator_mode")
@@ -162,7 +166,7 @@ class TLDetector(object):
         if self.pose:
             car_wp_id = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
 
-            diff = len(self.waypoints.waypoints)
+            diff = LOOKAHEAD_WPS    # len(self.waypoints.waypoints)
             for i, light in enumerate(self.lights):
                 # Get stop line waypoint index
                 line = stop_line_positions[i]
@@ -183,12 +187,11 @@ class TLDetector(object):
 
     def bounding_boxes_cb(self, msg):
         # create new list of bounding boxes
-
         self.BoundingBox_List = []
 
         if int(self.simulator_mode) == 1:
-            expected_probability = 0.85
-            diagonal_size = 85
+            expected_probability = 0.80
+            diagonal_size = 80
         else:
             expected_probability = 0.25
             diagonal_size = 40

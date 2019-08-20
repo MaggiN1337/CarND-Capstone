@@ -95,6 +95,7 @@ class TLClassifier(object):
 
         else:
             # take the boundingBox with highest probability (at index 0)
+            # TODO: only take BBs that are for  current lane
             xmin = bounding_box_list[0].xmin
             xmax = bounding_box_list[0].xmax
             ymin = bounding_box_list[0].ymin
